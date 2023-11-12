@@ -145,8 +145,6 @@ class World {
   }
 }
 
-let a = "banana";
-
 let _APP = null;
 
 window.addEventListener("DOMContentLoaded", () => {

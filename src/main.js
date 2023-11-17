@@ -5,11 +5,76 @@ import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.118.1/examples/
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.118/examples/jsm/controls/OrbitControls.js";
 
 class BasicCharacterController {
-  constructor() {}
+  constructor() {
+    this._input = new BasicCharacterControllerInput();
+    this._stateMachine = new FiniteStateMachine(new BasicCharacterControllerProxy(this));
+
+    this.LoadModels();
+  }
+
+  _LoadModels() {
+    const loader = new FBXLoader();
+    loader.setPath('./resources/models');
+    loader.load('meggy.fbx', (fbx) => {
+      fbx.scale.setScalar(0.1);
+      fbx.traverse(c => {
+        c.castShadow = true;
+      });
+      
+      this._target = fbx;
+      this._params.scene.add(this._target);
+
+      this._mixer = new THREE.AnimationMixer(this._target);
+
+      this._manager = new THREE.LoadingManager();
+      this._manager.onload = () => {
+        this._fsm.setState('idle');
+      };
+
+      const _OnLoad = (animName, anim) => {
+        const clip = anim.animations[0];
+        const action = this._mixer.clipAction(clip);
+
+        this._animations[animName] = {
+          clip: clip,
+          action: action,
+        };
+      };
+
+      const loader = new FBXLoader(this._manager);
+      loader.setPath('./resources/anim');
+      loader.load('idle.fbx', (a) => { _OnLoad('idle', a); });
+      loader.load('30fps_skating.fbx', (a) => { _OnLoad('30fps_skating', a); });
+    })
+  };
 }
 
+
 class BasicCharacterControllerInput {
-  constructor() {}
+  constructor() {
+    this._Init();
+  }
+
+  _Init() {
+    this._keys = {
+      forward: false,
+      backwards: false,
+      left: false,
+      right: false,
+      space: false,
+      shift: false,
+    };
+    document.addEventListener('keydown', (e) => this._onKeyDown(e), false);
+    document.addEventListener('keyup', (e) => this._onKeyUp(e), false);
+  }
+
+  _onKeyDown(event) {
+    switch (event.keyCode) {
+      case 87: // W
+        this._keys.forward = true;
+        break;
+    }
+  }
 }
 
 class FiniteStateMachine {

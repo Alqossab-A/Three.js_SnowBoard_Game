@@ -20,7 +20,7 @@ class BasicCharacterController {
       fbx.traverse(c => {
         c.castShadow = true;
       });
-      
+
       this._target = fbx;
       this._params.scene.add(this._target);
 
@@ -72,6 +72,44 @@ class BasicCharacterControllerInput {
     switch (event.keyCode) {
       case 87: // W
         this._keys.forward = true;
+        break;
+      case 83: // S
+        this._keys.backwards = true;
+        break;
+      case 65: // A
+        this._keys.left = true;
+        break;
+      case 68: // D
+        this._keys.right = true;
+        break;
+      case 32: // SPACE
+        this._keys.space = true;
+        break;
+      case 16: // SHIFT
+        this._keys.shift = true;
+        break;
+    }
+  }
+
+  _onKeyUp(event) {
+    switch (event.keyCode) {
+      case 87: // W
+        this._keys.forward = false;
+        break;
+      case 83: // S
+        this._keys.backwards = false;
+        break;
+      case 65: // A
+        this._keys.left = false;
+        break;
+      case 68: // D
+        this._keys.right = false;
+        break;
+      case 32: // SPACE
+        this._keys.space = false;
+        break;
+      case 16: // SHIFT
+        this._keys.shift = false;
         break;
     }
   }

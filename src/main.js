@@ -149,6 +149,65 @@ class FiniteStateMachine {
 
 };
 
+class CharacterFSM extends FiniteStateMachine {
+  constructor(proxy) {
+    super();
+    this._proxy = proxy;
+    this._Init();
+  }
+
+  _Init() {
+    this._AddState('idle', IdleState);
+    this._AddState('30fps_skating', SkatingState);
+  }
+};
+
+class State {
+  constructor(parent) {
+    this._parent = parent;
+  }
+
+  Enter() {};
+  Exit() {};
+  Update() {};
+};
+
+class IdleState extends State {
+  constructor(parent) {
+    super(parent);
+  }
+
+  get Name() {
+    return 'idle';
+  }
+
+  Enter(prevState) {
+    const idleAction = this._parent._proxy._animations['idle'].action;
+    if (prevState) {
+      const prevAction = this._parent._proxy._animations[prevState.Name].action;
+      idleAction.time = 0.0;
+      idleAction.enabled = true;
+      idleAction.setEffectiveTimeScale(1.0);
+      idleAction.setEffectiveWeight(1.0);
+      idleAction.crossFadeFrom(prevAction, 0.5, true);
+      idleAction.play();
+    } else {
+      idleAction.play();
+    }
+  }
+
+  Exit() {
+  }
+
+  Update(_, input) {
+    if (input._move.forward || input._move.backward) {
+      this._parent.SetState('walk');
+    } else if (input._move.space) {
+      this._parent.SetState('dance');
+    }
+  }
+};
+
 class World {
   constructor() {
     this._Initialize();
